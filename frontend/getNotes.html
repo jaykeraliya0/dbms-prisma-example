@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>User Notes</title>
+    <style>
+      body {
+        background-color: #f5f5f5;
+        font-family: Arial, sans-serif;
+      }
+      h1 {
+        text-align: center;
+        color: #222222;
+      }
+      table {
+        max-width: 800px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        border-collapse: collapse;
+        border-radius: 5px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+      }
+      th,
+      td {
+        padding: 10px;
+        text-align: left;
+        border-bottom: 1px solid #dddddd;
+      }
+      th {
+        background-color: #f2f2f2;
+        color: #555555;
+        font-weight: normal;
+      }
+      td {
+        color: #222222;
+      }
+      select {
+        padding: 5px;
+        border-radius: 5px;
+        border: 1px solid #cccccc;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>User Notes</h1>
+    <div style="text-align: center">
+      <label for="user-select">Select user:</label>
+      <select id="user-select">
+        <option value="" disabled selected>Select user</option>
+      </select>
+    </div>
+    <br />
+    <table id="notes-table">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Body</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <script>
+      const url = "http://localhost:5000/user";
+      let users = [];
+      fetch(url)
+        .then((response) => response.json())
+        .then((data) => {
+          users = data;
+          const select = document.getElementById("user-select");
+          users.forEach((user) => {
+            const option = document.createElement("option");
+            option.value = user.id;
+            option.text = user.name;
+            select.appendChild(option);
+          });
+        });
+
+      const select = document.getElementById("user-select");
+      select.addEventListener("change", async (event) => {
+        const id = event.target.value;
+        const table = document.getElementById("notes-table");
+        const tbody = table.getElementsByTagName("tbody")[0];
+        tbody.innerHTML = "";
+        console.log(id);
+        const res = await fetch(`http://localhost:5000/notes/${id}`);
+        const notes = await res.json();
+
+        notes.forEach((note) => {
+          const row = document.createElement("tr");
+          const title = document.createElement("td");
+          const body = document.createElement("td");
+          title.textContent = note.title;
+          body.textContent = note.body;
+          row.appendChild(title);
+          row.appendChild(body);
+          tbody.appendChild(row);
+        });
+      });
+    </script>
+  </body>
+</html>
